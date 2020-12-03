@@ -1,0 +1,753 @@
+var use_data8 = true;
+
+if ( typeof use_data8_override !== 'undefined' ) {
+	use_data8 = use_data8_override;
+}
+
+var validation_select_fields = ['property_value', 'mortgage_balance', 'address-picker', 'province'];
+var validation_input_fields = ['phone', 'mobile', 'address_finder', 'address', 'city', 'postal_code', 'postcode_finder', 'first_name', 'last_name', 'email'];
+var validation_textarea_fields = ['comments'];
+
+var validation = {
+    'unsecured_debt': {
+        'type': 'number',
+        'required': true,
+		'min_value': 10000,
+        'error': 'Sorry, you must have a minimum of $10,000 in unsecured debt to apply.'
+    },
+    'behind_on_bills': {
+        'type': 'checkbox',
+		'min_values': 1,
+		'max_values': 1,
+		'required': true,
+		'error': 'Please select an option to proceed.'
+    },
+    'types_of_debt[]': {
+        'type': 'checkbox',
+		'min_values': 1,
+		'required': true,
+		'error': 'Please select an option to proceed.'
+    },
+    'credit_rating': {
+        'type': 'checkbox',
+		'min_values': 1,
+		'max_values': 1,
+		'required': true,
+		'error': 'Please select an option to proceed.'
+    },
+    'employment_status': {
+        'type': 'checkbox',
+		'min_values': 1,
+		'max_values': 1,
+		'required': true,
+		'error': 'Please select an option to proceed.'
+    },
+    'home_owner': {
+        'type': 'checkbox',
+		'min_values': 1,
+		'max_values': 1,
+		'required': true,
+		'error': 'Please select an option to proceed.'
+    },
+	'property_value': {
+		'type': 'select',
+		'required': true,
+		'error': 'Please select a property value to proceed.'
+	},
+	'mortgage_balance': {
+		'type': 'select',
+		'required': true,
+		'error': 'Please select a mortgage balance to proceed.'
+	},
+	'first_name': {
+		'type': 'text',
+		'required': true,
+		'min_length': 2,
+		//'regex': /\w+\s+\w+/,
+		'error': 'Please enter your first name.'
+	},
+	'last_name': {
+		'type': 'text',
+		'required': true,
+		'min_length': 2,
+		'error': 'Please enter your last name.'
+	},
+	'address_finder': {
+		'type': 'text',
+		'required': true,
+		'min_length': 2,
+		'error': 'Please enter your address.'
+	},
+	'address': {
+		'type': 'text',
+		'required': true,
+		'error': 'Please enter your address.'
+	},
+	'city': {
+		'type': 'text',
+		'required': true,
+		'error': 'Please enter your city.'
+	},
+	'province': {
+		'type': 'select',
+		'required': true,
+		'error': 'Please select a province.'
+	},
+	'postal_code': {
+		'type': 'text',
+		'required': true,
+		'min_length': 6,
+		'error': 'Please enter a valid postcode.'
+	},
+	'postcode_finder': {
+		'type': 'text',
+		'required': true,
+		//'regex': /^(([gG][iI][rR] {0,}0[aA]{2})|((([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y]?[0-9][0-9]?)|(([a-pr-uwyzA-PR-UWYZ][0-9][a-hjkstuwA-HJKSTUW])|([a-pr-uwyzA-PR-UWYZ][a-hk-yA-HK-Y][0-9][abehmnprv-yABEHMNPRV-Y]))) {0,}[0-9][abd-hjlnp-uw-zABD-HJLNP-UW-Z]{2}))$/,
+		'regex': /^\s*([a-z]\s*[0-9]\s*[a-z]\s*[0-9]\s*[a-z]\s*[0-9])\s*/i, /* /^\s*[A-Z][A-Z]?[0-9][A-Z0-9]? ?[0-9][A-Z]{2}\s*$/i, */
+		'error': 'Please enter a valid postal code.'
+	},
+	'address-picker': {
+		'type': 'select',
+		'required': true,
+		'error': 'Please select your address.'
+	},
+    'purpose_understood': {
+        'type': 'checkbox',
+		'min_values': 1,
+		'max_values': 1,
+		'required': true,
+		'error': 'Please select an option to proceed.'
+    },
+	'email': {
+		'type': 'email',
+		'required': true,
+		'error_empty': 'Please enter an email address.',
+		'error_invalid': 'Please enter a valid email address.'
+	},
+	'contact_ok': {
+		'type': 'checkbox',
+		'required': true,
+		'error': 'Please check the box to continue.'
+	},
+	'phone': {
+		'type': 'canada_phone',
+		'required': true,
+		'minimum_length': 10,
+		'error': 'Please enter a valid phone number.'
+	},
+	'mobile': {
+		'type': 'canada_phone',
+		'required': true,
+		'minimum_length': 10,
+		'error': 'Please enter a valid phone number.'
+	},
+	'phone_validate': {
+		'type': 'canada_phone',
+		'required': true,
+		'minimum_length': 10,
+		'error': 'Please enter a valid phone number.'
+	},
+	'verification_code': {
+		'type': 'text',
+		'required': 'true',
+		'minimum_length': 4,
+		'max_length': 4,
+		'regex': /\d{4}/,
+		'error': 'Please enter the 4 digit code we sent to your phone'
+	},
+	'terms': {
+		'type': 'checkbox',
+		'required': true,
+		'error': 'Please check the box to continue.'
+	},
+	'comments': {
+		'type': 'text',
+		'required': true,
+		'min_length': 2,
+		'error': 'Please enter a description of your debt problem.'
+	}
+};
+
+if ( typeof validation_override !== 'undefined' ) {
+	$.each(validation_override, function( index, value ) {
+		console.log(index);
+		validation[ index ] = value;
+	});
+}
+
+$(document).ready(function() {
+	
+});
+
+function reprocess_canada_postal_code(postal_code) {
+
+	postal_code = postal_code.replace(/[o]/ig, '0');
+	postal_code = postal_code.replace(/[i]/ig, '1');
+
+	return postal_code;
+}
+
+function check_address_finder(input_value, city, province, postal_code, callback) {
+	var validation_response = false;
+	
+	if ( !( input_value == '' || city == '' || province == '' || postal_code == '' ) ) {
+		validation_response = true;
+	}
+	
+	callback(validation_response);
+}
+
+function check_age(dob_string, minimum_age, callback) {
+	var validation_response = false;
+	
+	var dob_moment = moment(dob_string, ["MM-DD-YYYY", "YYYY-MM-DD", "MMMM-DD-YYYY"]);
+							
+	var min_years_ago = moment().subtract(minimum_age, 'years');
+	
+	if ( dob_moment <= min_years_ago ) {
+		validation_response = true;
+	}
+	
+	callback(validation_response);
+}
+
+function check_time_minimum(input_years, input_months, minimum_months, callback) {
+	var validation_response = false;
+	
+	var total_months = (input_years * 12) + input_months;
+	
+	if ( total_months >= minimum_months ) {
+		validation_response = true;
+	}
+	
+	callback(validation_response);
+}
+
+function check_valid_selection(fail_name_list, input_value, callback) {
+	var validation_response = false;
+	
+	if ( $.inArray( input_value, fail_name_list ) == -1 ) {
+		validation_response = true;
+	}
+	
+	callback(validation_response);
+}
+
+function validate_phone_fields(phone_inputs, checkmark, error_text) {
+	var return_value = false;
+	var error_message = '';
+		
+	var input_results = {
+		'phone': 'empty',
+		'mobile': 'empty'
+	};
+	
+	var empty_count = 0;
+	var invalid_count = 0;
+	var parent_container = null;
+	
+	jQuery.each(phone_inputs, function(index, phone_input) {
+		parent_container = $(phone_input).closest('.field-form');
+		if ( parent_container == null || parent_container.length == 0 ) {
+			parent_container = $(phone_input).closest('.step');
+		}
+		
+		error_message = validation[ $(phone_input).attr('name') ]['error'];
+		if ( $(phone_input).val() == '' ) {
+			input_results[ $(phone_input).attr('name') ] = 'empty';
+			empty_count += 1;
+		}
+		else {
+			var validation_response = validate_field($(phone_input), validation);
+			
+			input_results[ $(phone_input).attr('name') ] = validation_response['success'] == true ? 'valid' : 'invalid';
+			if ( ! validation_response['success'] ) {
+				invalid_count += 1;
+			}
+		}
+	});
+	
+	if ( invalid_count + empty_count == 2 ) {
+		if ( invalid_count > 0 ) {
+			jQuery.each(input_results, function(phone_type, phone_result) {
+				var input_item = parent_container.find('input[type="tel"][name="' + phone_type + '"]');
+				update_element_valid_state($(input_item), {'success': false, 'error': error_message}, checkmark, error_text);
+				/*
+				if ( phone_result == 'invalid' ) {
+					update_element_valid_state($(input_item), {'success': false, 'error': error_message}, checkmark, error_text);
+				}
+				else {
+					update_element_valid_state($(input_item), {'success': true, 'error': error_message}, false, error_text);
+				}
+				*/
+			});
+		}
+		else {
+			jQuery.each(input_results, function(phone_type, phone_result) {
+				var input_item = parent_container.find('input[type="tel"][name="' + phone_type + '"]');
+				update_element_valid_state($(input_item), {'success': false, 'error': error_message}, checkmark, error_text);
+			});
+			return_value = true;
+		}
+	}
+	else {
+		jQuery.each(input_results, function(phone_type, phone_result) {
+			var input_item = parent_container.find('input[type="tel"][name="' + phone_type + '"]');
+			if ( phone_result == 'invalid' ) {
+				update_element_valid_state($(input_item), {'success': false, 'error': error_message}, checkmark, false);
+			}
+			else if ( phone_result == 'valid' ) {
+				update_element_valid_state($(input_item), {'success': true, 'error': error_message}, checkmark, false);
+			}
+			else {
+				update_element_valid_state($(input_item), {'success': true, 'error': error_message}, false, false);
+			}
+		});
+		return_value = true;
+	}
+	
+	return return_value;
+}
+
+function check_data8(phone, mobile, callback) {
+	var result_data = {'success': false};
+	result_data['error_message'] = 'Please enter a valid phone number.';
+	result_data['error_count'] = 0;
+	result_data['valid_count'] = 0;
+	result_data['phone_response'] = validate_field($(document).find('input[name="phone"][type="tel"]'), validation)['success'];
+	result_data['mobile_response'] = validate_field($(document).find('input[name="mobile"][type="tel"]'), validation)['success'];
+	
+	if ( result_data['phone_response'] && result_data['mobile_response'] ) {
+		data8(phone, function(phone_result) {
+			if ( ! phone_result ) {
+				result_data['error_count'] += 1;
+			}
+			else {
+				result_data['valid_count'] += 1;
+			}
+			result_data['phone_response'] = phone_result;
+			
+			data8(mobile, function(mobile_result) {
+				if ( ! mobile_result ) {
+					result_data['error_count'] += 1;
+				}
+				else {
+					result_data['valid_count'] += 1;
+				}
+				result_data['mobile_response'] = mobile_result;
+				
+				var min_valid_count = 1;
+				if ( override_data8_validate_both_numbers ) {
+					min_valid_count = 2;
+				}
+
+				if ( result_data['valid_count'] >= min_valid_count ) {
+					result_data['success'] = true;
+				}
+				
+				callback(result_data);
+			});
+		});
+	}
+	else if ( result_data['phone_response'] ) {
+		result_data['error_count'] = 1;
+		data8(phone, function(phone_result) {
+			if ( ! phone_result ) {
+				result_data['error_count'] = 2;
+			}
+			else {
+				result_data['valid_count'] += 1;
+			}
+			result_data['phone_response'] = phone_result;
+			
+			if ( result_data['valid_count'] > 0 ) {
+				result_data['success'] = true;
+			}
+			
+			callback(result_data);
+		});
+	}
+	else if ( result_data['mobile_response'] ) {
+		result_data['error_count'] = 1;
+		data8(mobile, function(mobile_result) {
+			if ( ! mobile_result ) {
+				result_data['error_count'] = 2;
+			}
+			else {
+				result_data['valid_count'] += 1;
+			}
+			result_data['mobile_response'] = mobile_result;
+			
+			if ( result_data['valid_count'] > 0 ) {
+				result_data['success'] = true;
+			}
+			
+			callback(result_data);
+		});
+	}
+	else {
+		result_data['error_count'] = 2;
+		result_data['phone_response'] = false;
+		result_data['mobile_response'] = false;
+		
+		callback(result_data);
+	}
+}
+
+function data8(phone_number, callback) {
+	var data = {'phone_number': phone_number};
+			
+	$.ajax({
+		'url': '/ajax_data-8.php',
+		'type': 'POST',
+		'dataType': 'json',
+		'data': data,
+		'error': function(jqXHR, textStatus, errorThrown) {
+			if ( textStatus == 'timeout' ) {
+				var error_data = {
+					'action': 'submit_error',
+					'error_message': 'Data8 Timeout',
+					'error_type': 'timeout',
+					'phone_number': phone_number,
+				};
+				
+				$.ajax({
+					'url': '/ajax_data8_error_handle.php',
+					'type': 'POST',
+					'dataType': 'json',
+					'data': error_data,
+					'error': function(return_data) {
+						console.log( return_data );
+					},
+					'success': function (return_data) {
+						if ( return_data.success == false ) {
+							console.log( return_data.error );
+						}
+					}
+				});
+			};
+			callback(true);
+		},
+		'success': function(return_data) {
+			if (return_data.success === false) {
+				var error_data = {
+					'action': 'submit_error',
+					'error_message': return_data.error,
+					'error_type': 'api',
+					'phone_number': phone_number,
+				};
+				
+				$.ajax({
+					'url': '/ajax_data8_error_handle.php',
+					'type': 'POST',
+					'dataType': 'json',
+					'data': error_data,
+					'error': function(return_data) {
+						console.log( return_data );
+					},
+					'success': function (return_data) {
+						if ( return_data.success == false ) {
+							console.log( return_data.error );
+						}
+					}
+				});
+			};
+			callback(return_data.success);
+		},
+		timeout: 5000
+	});
+}
+
+function validate_field(input_object, validation) {
+	var rules = validation[ $(input_object).attr('name') ];
+	var result = {
+		'success': false
+	}
+	
+	if ( rules['type'] == 'email' ) {
+		result['error'] = rules['error_empty'];
+	}
+	else {
+		result['error'] = rules['error'];
+	}
+	
+	if ( rules['type'] == 'select' ) {
+		if ( $(input_object).val() == '' ) {
+			return result;
+		}
+		else {
+			result['success'] = true;
+			return result;
+		}
+	}
+	
+	if ( rules['type'] == 'checkbox' ) {
+		var checkboxes = $(document).find('input[name="' + $(input_object).attr('name') + '"]');
+		if ( checkboxes.length == 1 ) {
+			result['success'] = $(input_object).prop('checked');
+			return result;
+		}
+		else {
+			var checked_count = 0;
+			
+			$.each(checkboxes, function(index, check_input) {
+				if ( $(check_input).prop('checked') ) {
+					checked_count += 1;
+				}
+			});
+			
+			if ( 'min_values' in rules ) {
+				if ( checked_count < rules['min_values'] ) {
+					return result;
+				}
+			}
+			
+			if ( 'max_values' in rules && rules['max_values'] != 0 ) {
+				if ( checked_count > rules['max_values'] ) {
+					return result;
+				}
+			}
+			
+			result['success'] = true;
+			return result;
+		}
+	}
+	
+	if ( rules['type'] == 'email' ) {
+		if ( $(input_object).val() == '' ) {
+			result['error'] = rules['error_empty'];
+			return result;
+		}
+		
+		var regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+			
+		if ( regex.test($(input_object).val()) ) {
+			result['success'] = true;
+			return result;
+		}
+		else {
+			result['error'] = rules['error_invalid'];
+			return result;
+		}
+	}
+	
+	if ( rules['type'] == 'text' ) {
+		if ( $(input_object).val() == '' ) {
+			return result;
+		}
+
+		if ( typeof rules['min_length'] !== 'undefined' ) {
+			if ( $(input_object).val().trim().length < rules['min_length'] ) {
+				return result;
+			}
+		}
+		
+		if ( typeof rules['max_length'] !== 'undefined' && rules['max_length'] != 0 ) {
+			if ( $(input_object).val().trim().length > rules['max_length'] ) {
+				return result;
+			}
+		}
+		
+		if ( typeof rules['regex'] !== 'undefined' ) {
+			if ( rules['regex'].test($(input_object).val()) ) {
+				result['success'] = true;
+				return result;
+			}
+			else {
+				return result;
+			}
+		}
+		
+		result['success'] = true;
+		return result;
+	}
+	
+	if ( rules['type'] == 'number' ) {
+		var number_value = parseInt($(input_object).val().replace(/[^0-9]/g, ''));
+		
+		if ( 'min_value' in rules ) {
+			if ( number_value < rules['min_value'] ) {
+				return result;
+			}
+		}
+		
+		if ( 'max_value' in rules ) {
+			if ( number_value > rules['max_value'] ) {
+				return result;
+			}
+		}
+		
+		result['success'] = true;
+		return result;
+	}
+	
+	if ( rules['type'] == 'uk_phone' ) {
+		var check_regex = /^[\(\)\d\s\-\.\+]+$/;
+		var strip_regex = /[^\d]/g;
+		var area_start_regex = /^\+?44/;
+		var leading_zero_regex = /^0?/;
+		var area_code_regex = /^(1|2|3|7)/;
+		var valid_lengths = [9,10];
+		
+		if ( $(input_object).val() == '' ) {
+			result['empty_phone'] = true;
+			return result;
+		}
+		
+		var stripped_phone = $(input_object).val().replace(strip_regex, '').replace(area_start_regex, '').replace(leading_zero_regex, '');
+		if ( valid_lengths.indexOf( stripped_phone.length ) == -1 ) {
+			return result;
+		}
+
+		if ( area_code_regex.test( stripped_phone ) == false ) {
+			return result;
+		}
+		
+		if ( check_regex.test( $(input_object).val() ) == false ) {
+			return result;
+		}
+		
+		result['success'] = true;
+		return result;
+	}
+	
+	if ( rules['type'] == 'canada_phone' ) {
+		var check_regex = /^[\(\)\d\s\-\.]+$/g;
+		var strip_regex = /[^\d]/g;
+		var valid_lengths = [10];
+		
+		if ( $(input_object).val() == '' ) {
+			result['empty_phone'] = true;
+			return result;
+		}
+		
+		if ( valid_lengths.indexOf( $(input_object).val().replace(strip_regex, '').length ) ) {
+			return result;
+		}
+		
+		if ( check_regex.test( $(input_object).val() ) == false ) {
+			return result;
+		}
+		
+		result['success'] = true;
+		return result;
+	}
+}
+
+function update_element_valid_state(input_element, validation_response, checkmark, error_text) {
+	if ( input_element.length > 0 ) {
+		var text_validation_inputs = [
+			'first_name',
+			'last_name',
+			'email',
+			'phone',
+			'mobile',
+			'verification_code',
+			'address_finder',
+			'address',
+			'city',
+			'postal_code',
+			'postcode_finder',
+			'work_company',
+			'work_title'
+		];
+		
+		var $validation_display = input_element.closest('.validation-display');
+		if ( typeof $validation_display === 'undefined' || $validation_display.length == 0 ) {
+			var $validation_display = input_element.closest('.check-list');
+		}
+		if ( typeof $validation_display === 'undefined' || $validation_display.length == 0 ) {
+			var $validation_display = input_element.closest('.field-form');
+		}
+		
+		if ( ['birthdate_day', 'birthdate_month', 'birthdate_year', 'address-picker', 'province'].indexOf(input_element.attr('name')) !== -1 ) {
+			var $validation_display = $('.jcf-select-' + input_element.attr('name'));
+		}
+		
+		if ( ['contact_ok', 'terms'].indexOf(input_element.attr('name')) !== -1 ) {
+			var $validation_display = input_element.closest('.jcf-checkbox');
+		}
+		
+		if ( text_validation_inputs.indexOf(input_element.attr('name')) !== -1 ) {
+			var $validation_display = input_element;
+		}
+		
+		var $error_message = $validation_display.find('.field-error-message');
+		if ( typeof $error_message === 'undefined' || $error_message.length == 0 ) {
+			var $error_message = $validation_display.closest('.error-outer-container').find('.field-error-message.error-' + input_element.attr('name').replace('[]',''));
+			if ( typeof $error_message === 'undefined' || $error_message.length == 0 ) {
+				var $error_message = $validation_display.parent().find('.field-error-message');
+			}
+		}
+		
+		if ( ['first_name', 'last_name', 'birthdate_day', 'birthdate_month', 'birthdate_year', 'contact_ok', 'terms', 'phone', 'mobile', 'address_finder', 'address', 'city', 'province', 'postal_code', 'postcode_finder', 'address-picker', 'work_company', 'work_title'].indexOf(input_element.attr('name')) !== -1 ) {
+			var $error_message = $('.field-error-message.error-' + input_element.attr('name').replace('[]',''));
+		}
+		
+		var check_display = checkmark;
+		var error_display = error_text;
+		/*
+		var check_display = true;
+		if ( typeof validation_response['leave_blank'] !== 'undefined' ) {
+			if ( validation_response['leave_blank'] ) {
+				check_display = false;
+			}
+		}*/
+		
+		if ( ! validation_response['success'] ) {
+			if ( text_validation_inputs.indexOf(input_element.attr('name')) !== -1 ) {
+				input_element.parent().removeClass('field-success-icon');
+			}
+			else {
+				$('.success-' + input_element.attr('name').replace('[]','').replace('[]','')).animate({opacity: 0}, 50);
+			}
+			
+			$validation_display.removeClass('success');
+			
+			if ( error_text ) {
+				$validation_display.addClass('error');
+				$error_message.text( validation_response['error'] );
+				$error_message.show();
+			}
+			else {
+				$validation_display.removeClass('error');
+				$error_message.text('');
+				$error_message.hide();
+			}
+		}
+		else {
+			$validation_display.removeClass('error');
+			$validation_display.addClass('success');
+			if ( check_display ) {
+				if ( text_validation_inputs.indexOf(input_element.attr('name')) !== -1 ) {
+					if (window.chrome !== null && window.chrome !== undefined && window.navigator.vendor === "Google Inc.") {
+						var $input_item = $('input[name=' + input_element.attr('name') + ']:-webkit-autofill');
+						if ( $input_item.length > 0 ) {
+							setTimeout(function() {
+								var text = $input_item.val();
+								var name = $input_item.attr('name');
+								$input_item.after($input_item[0].outerHTML).remove();
+								$('input[name=' + name + ']').val(text);
+							}, 1);
+						}
+					}
+					
+					input_element.parent().addClass('field-success-icon');
+				}
+				else {
+					$('.success-' + input_element.attr('name').replace('[]','').replace('[]','')).animate({opacity: 1}, 50);
+				}
+			}
+			else {
+				if ( text_validation_inputs.indexOf(input_element.attr('name')) !== -1 ) {
+					input_element.parent().removeClass('field-success-icon');
+				}
+				else {
+					$('.success-' + input_element.attr('name').replace('[]','').replace('[]','')).animate({opacity: 0}, 50);
+				}
+			}
+			$error_message.text('');
+			$error_message.hide();
+		}
+	}
+}

@@ -1,0 +1,85 @@
+function mobileCheck() {
+	var winWidth = $(window).width();
+	if (winWidth<1024) {
+		if (!$("body").hasClass("mobile-v")) {
+			if(!$('.logos .slides').hasClass('slick-initialized')) {
+				window.setTimeout(function() {
+					$('.logos.mobile-only .slides').slick({
+						arrows: true,
+						dots: false,
+						speed: 300,
+						variableWidth: true,
+						centerPadding: 0,
+						slidesToShow: 5,
+						slidesToScroll: 2,
+						responsive: [
+						{
+							breakpoint: 480,
+							settings: {
+								slidesToShow: 3,
+								initialSlide: 1,
+								centerMode: true,
+								slidesToScroll: 2
+							}
+						}
+						]
+					});
+				}, 0);
+			}
+			$("body").addClass("mobile-v");
+		};
+	} else {
+		if ($("body").hasClass("mobile-v")) {
+			if($('.logos .slides').hasClass('slick-initialized')) {
+				window.setTimeout(function() {
+					$('.logos .slides').slick('unslick');
+				}, 0);
+			}
+			$("body").removeClass("mobile-v");
+		};
+	}
+}
+
+$(document).on('click', 'a[href^="#"]', function(e) {
+	e.preventDefault();
+	var dest = $(this).attr('href'); 
+	$('html,body').animate({ scrollTop: $(dest).offset().top }, 'slow');
+}); 
+
+$(document).ready(function() {
+	mobileCheck();
+	$(window).resize(function() {
+		mobileCheck();
+	});
+
+	//$("select").crfs();
+	$(".btn-red").click(function() {
+		var selected_value = $(this).closest('form').find('[name=main_select] option:selected').val();
+		
+		if ( typeof selected_value !== 'undefined' && selected_value != '' && ( $(this).attr('href') == '' || typeof $(this).attr('href') === 'undefined' )) {
+			window.location.href = "/" + selected_value;
+		}
+		else if ( typeof $(this).attr('href') !== 'undefined' && $(this).attr('href') != '' ) {
+			window.location.href = $(this).attr('href');
+		}
+		else {
+			var cc = $(this);
+			if (!cc.hasClass("opac")) {
+				cc.addClass("opac");
+				window.setTimeout(function() {
+					cc.addClass("mov");
+				}, 100);
+				window.setTimeout(function() {
+					cc.removeClass("mov");
+				}, 2100);
+				window.setTimeout(function() {
+					cc.removeClass("opac");
+				}, 4100);
+			}
+		}
+		return false;
+	});
+	$("#menu .trigger").click(function() {
+		$("body").toggleClass("active-menu")
+	});
+});
